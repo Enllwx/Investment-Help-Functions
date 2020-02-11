@@ -1,0 +1,93 @@
+---
+title: "trial"
+author: "Quanzhi Chen (20712092)"
+date: "15/01/2020"
+output: html_document
+---
+
+```{r}
+PV <- function(FV, period, year, couponRate,  yield){
+  
+  i <- yield / period
+  coupon <- FV * couponRate / period
+  n <- year * period
+  PV <- coupon * ( (1 - (1+i)^(-n)) / i ) + FV * (1 + i)^(-n)
+  return(PV)
+}
+
+
+Duration <- function(FV, period, year, couponRate, yield){
+  
+  PV <- PV(FV, period, year, couponRate, yield)
+  coupon <- FV * couponRate / period
+  n <- year * period
+  i <- yield / period 
+  
+  duration <- 0
+  for (t in 1:n){
+    duration <- duration + (t * coupon * (1 + i)^(-t) / PV)
+  }
+  duration <-  duration + n * FV * (1 + i)^(-n) / PV 
+  return(duration)
+}
+
+
+ModifiedDuration <- function(FV, period, year, couponRate, yield){
+  i <- yield / period
+  MD <- Duration(FV, period, year, couponRate, yield) / (1 + i)
+  return(MD)
+}
+
+
+
+# PriceChange: use modified duration to calculate price change in bond
+# units: yield changes units, for semi-annual bond, it means coupon will then be 
+#     coupon = FV * (1 + yield/period + ychange)
+# note: accurate when change in yield is small, less accurate if change in yield is large
+PriceChange <- function(FV, period, year, couponRate, yield, ychange){
+  MD <- ModifiedDuration(FV, period, year, couponRate, yield)
+  PV <- PV(FV, period, year, couponRate, yield)
+  PC <- PV * ychange * (- MD)
+  return(PC)
+}
+
+
+
+Convexity <- function(FV, period, year, couponRate, yield){
+  PV <- PV(FV, period, year, couponRate, yield)
+  coupon <- FV * couponRate / period
+  n <- year * period
+  i <- yield / period 
+  
+  C <- 0
+  for (t in 1:n){
+    C <- C + (t+1) * (t * coupon * (1 + i)^(-t) / PV)
+  }
+  C <-  C + (n+1) * n * FV * (1 + i)^(-n) / PV 
+  
+  C <- C / (1 + i)^2
+  return(C)
+  
+}
+
+
+# use convexity to calulate Price change of bond
+PriceChange2 <- function(FV, period, year, couponRate, yield, ychange){
+  MD <- ModifiedDuration(FV, period, year, couponRate, yield)
+  PV <- PV(FV, period, year, couponRate, yield)
+  C <- Convexity(FV, period, year, couponRate, yield)
+  
+  PC <- ychange*(- MD)*PV + 1/2*C*ychange^2*PV
+  return(PC)
+}
+  
+
+PV(1000, 2, 10, 0.07, 0.065)
+Duration(1000, 2, 10, 0.07, 0.065)
+ModifiedDuration(1000, 2, 10, 0.07, 0.065)
+PriceChange(1000, 2, 10, 0.07, 0.065, 0.001)
+Convexity(1000, 2, 10, 0.07, 0.065)
+PriceChange2(1000, 2, 10, 0.07, 0.065, 0.001)
+
+```
+
