@@ -1,0 +1,38 @@
+---
+title: "trial"
+author: "Quanzhi Chen (20712092)"
+date: "11/02/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+# Margin(): the function determine the if there is margin call, 
+#    if there is, then the function will return how many shares would be selled
+# margin = equity / tot stock   
+Margin <- function(ini_price, ini_margin, curr_price, margin_req, shares){
+  
+  loan <- ini_price * shares * (1 - ini_margin)
+  curr_stock <- shares * curr_price
+  curr_equity <- curr_stock - loan
+  curr_margin <- curr_equity / curr_stock
+  
+  if (curr_margin > margin_req) {
+      print("current margin is above min. margin required")
+  } else if (curr_margin == margin_req){
+      print("current margin is equal to min. margin required")
+  } else {
+    # in this case, margin call will happen
+    # the number of stock need to sell is X, and we have formula
+    #     loan - curr_price * X = (shares - X) * curr_price * (1 - margin_req)
+    print("Margin call! shares will be selled is:")
+    X <- (loan - shares * curr_price * (1 - margin_req)) / (margin_req * curr_price)
+    return(ceiling(X))
+  }
+}
+
+Margin(12, 0.3, 11, 0.3, 1000)
+
+```
+
+

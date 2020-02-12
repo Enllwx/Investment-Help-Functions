@@ -1,0 +1,27 @@
+---
+title: "trial"
+author: "Quanzhi Chen (20712092)"
+date: "15/01/2020"
+output: html_document
+---
+
+```{r}
+# Bond equivalent yield, used in canada money market, for Treasure bills
+BEY <- function(n, price){
+  bey <- (1000 - price)/price * (365 / n)
+  return(bey)
+}
+
+# Bank discount rate: use in Amercia, similar to BET
+BDR <- function(n, price){
+  bdr <- (1000 - p) / 1000 * (360 / n)
+  return(bdr)
+}
+
+BDR2BEY <- function(n, bdr){
+  bey <- (365 * bdr) / (360 - bdr*n)
+  return(bey)
+}
+
+```
+
